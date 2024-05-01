@@ -99,7 +99,7 @@ function validate(validatableInput: Validatable){
         typeof validatableInput.value === 'number'
 
     ){
-        isValid = isValid && validatableInput.value > validatableInput.min;
+        isValid = isValid && validatableInput.value >= validatableInput.min;
     }
 
      if(
@@ -166,6 +166,15 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
 class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> {
     private project: Project;
 
+    get persons(){
+        if(this.project.people === 1){
+            return '1 person';
+        }
+        else {
+            return `${this.project.people} persons`
+        }
+    }
+
     constructor(hostId: string, project: Project){
         super('single-project', hostId, false, project.id);
         this.project = project;
@@ -178,8 +187,8 @@ class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> {
     }
 
     renderContent(): void {
-        this.element.querySelector('h3')!.textContent = this.project.people.toString();
         this.element.querySelector('h2')!.textContent = this.project.title;
+        this.element.querySelector('h3')!.textContent = this.persons + ' assigned';
         this.element.querySelector('p')!.textContent = this.project.description;
 
     }
@@ -224,6 +233,7 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> {
         listEl.innerHTML = '';
 
         for (const prjItem of this.assignedProjects){
+            console.log('prjItem', prjItem);
             new ProjectItem(this.element.querySelector('ul')!.id, prjItem);
         }
     }
@@ -263,14 +273,14 @@ class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
          const descriptionValidatable: Validatable = {
             value: enterdescription,
             required: true,
-            minLength: 5
+            minLength: 4
         };
 
          const peopleValidatable: Validatable = {
             value: +enterPeople,
             required: true,
-            min: 1,
-            max: 5
+            min: 0,
+            max: 10
         };
 
         if(
@@ -282,7 +292,7 @@ class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
             return;
         }
         else {
-            return [enterTitle, enterPeople, +enterPeople];
+            return [enterTitle, enterdescription, +enterPeople];
         }
     }
 
